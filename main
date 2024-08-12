@@ -1,0 +1,79 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            FileReader archivoFisico = new FileReader("startup-profit.csv");
+            BufferedReader archivoLogico = new BufferedReader(archivoFisico);
+
+            String registro;
+            String[] campos;
+
+
+            double sumaX = 0.0;
+            double sumaY = 0.0;
+            double sumaZ = 0.0;
+            double sumaXY = 0.0;
+            double sumaXZ = 0.0;
+            double sumaY2 = 0.0;
+            double sumaZ2 = 0.0;
+            double sumaX2 = 0.0;
+
+            int contador = 0;
+
+            // Leer la primera linea
+            archivoLogico.readLine();
+
+            while ((registro = archivoLogico.readLine()) != null) {
+                campos = registro.split(",");
+
+                // Extraer los valores de interes
+                double rAndDSpend = Double.parseDouble(campos[0]);
+                double marketingSpend = Double.parseDouble(campos[2]);
+                double profit = Double.parseDouble(campos[4]);
+
+                // Sumas necesarias para el calculo de correlacion
+                sumaX += profit;
+                sumaY += rAndDSpend;
+                sumaZ += marketingSpend;
+
+                sumaXY += profit * rAndDSpend;
+                sumaXZ += profit * marketingSpend;
+
+                sumaY2 += rAndDSpend * rAndDSpend;
+                sumaZ2 += marketingSpend * marketingSpend;
+                sumaX2 += profit * profit;
+
+                contador++;
+            }
+
+            // Calcular coeficiente de correlacion de Pearson para Profit y R&D Spend
+            double correlacionProfitRAndD = (contador * sumaXY - sumaX * sumaY) /
+                    Math.sqrt((contador * sumaX2 - sumaX * sumaX) *
+                            (contador * sumaY2 - sumaY * sumaY));
+
+            // Calcular coeficiente de correlacion de Pearson para Profit y Marketing Spend
+            double correlacionProfitMarketing = (contador * sumaXZ - sumaX * sumaZ) /
+                    Math.sqrt((contador * sumaX2 - sumaX * sumaX) *
+                            (contador * sumaZ2 - sumaZ * sumaZ));
+
+            // Imprimir resultados
+            System.out.println("Coeficiente de correlacion entre Profit y R&D Spend: " + correlacionProfitRAndD);
+            System.out.println("Coeficiente de correlacion entre Profit y Marketing Spend: " + correlacionProfitMarketing);
+
+            // Cerrar archivos
+            archivoLogico.close();
+            archivoFisico.close();
+
+        }
+        catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
